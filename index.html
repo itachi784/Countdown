@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counting Down to Feb 6th</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-pink: #ff758c;
+            --accent: #ff477e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #4a4a4a;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            pointer-events: none;
+            animation: float 10s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 450px;
+            width: 85%;
+            z-index: 10;
+        }
+
+        .profile-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px auto;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #d63384;
+            margin: 10px 0;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .box {
+            background: white;
+            padding: 12px 5px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(214, 51, 132, 0.1);
+        }
+
+        .number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ff758c;
+            display: block;
+        }
+
+        .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: #aaa;
+        }
+
+        /* Music Button */
+        .music-btn {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            color: #ff758c;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .music-btn:hover { background: #fff0f3; transform: scale(1.05); }
+
+        #finish-msg { display: none; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="Dekha Hazaro Dafaa - Rustom 320 Kbps.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        <div class="profile-container">
+            <img src="1.jpeg" alt="Birthday Girl" class="profile-pic" onerror="this.src='https://via.placeholder.com/150?text=Her+Photo'">
+        </div>
+
+        <div id="countdown-ui">
+            <h1>Time Remaining For My Favourite Person Birthday❤</h1>
+            
+            <div class="countdown-grid">
+                <div class="box"><span class="number" id="days">00</span><span class="label">Days</span></div>
+                <div class="box"><span class="number" id="hours">00</span><span class="label">Hours</span></div>
+                <div class="box"><span class="number" id="mins">00</span><span class="label">Mins</span></div>
+                <div class="box"><span class="number" id="secs">00</span><span class="label">Secs</span></div>
+            </div>
+
+            <button class="music-btn" id="music-toggle" onclick="toggleMusic()">
+                <span id="music-icon">🎵</span> <span id="music-text">Play Our Song</span>
+            </button>
+        </div>
+
+        <div id="finish-msg">
+            <h1>Happy Birthday! 🎂</h1>
+            <p>To the most amazing person in the world.</p>
+        </div>
+    </div>
+
+    <script>
+        // Set target to Feb 6
+        const targetDate = new Date("Feb 6, 2026 00:00:00").getTime();
+        const music = document.getElementById("bg-music");
+        const musicText = document.getElementById("music-text");
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+                musicText.innerText = "Mute Music";
+            } else {
+                music.pause();
+                musicText.innerText = "Play Music";
+            }
+        }
+
+        const timer = setInterval(function() {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerHTML = d;
+            document.getElementById("hours").innerHTML = h;
+            document.getElementById("mins").innerHTML = m;
+            document.getElementById("secs").innerHTML = s;
+
+            if (diff < 0) {
+                clearInterval(timer);
+                document.getElementById("countdown-ui").style.display = "none";
+                document.getElementById("finish-msg").style.display = "block";
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 } });
+            }
+        }, 1000);
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 5 + 5 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 10000);
+        }
+        setInterval(createHeart, 600);
+    </script>
+</body>
+</html>
